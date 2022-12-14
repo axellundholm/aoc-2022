@@ -1,40 +1,40 @@
 import numpy as np
 
-def move_rope(head, tail, move, visited):
+def move_rope(moves, knots):
 
-	for s in range(move[1]):
+	rope = [np.array([0, 0]) for i in range(knots)]
 
-		if move[0] == 'U':
-			head[1] += 1
-		elif move[0] == 'D':
-			head[1] -= 1
-		elif move[0] == 'R':
-			head[0] += 1
-		elif move[0] == 'L':
-			head[0] -= 1
+	visited = {tuple(rope[-1])}
 
-		if abs(head[0] - tail[0]) > 1 or abs(head[1] - tail[1]) > 1:
-			tail += np.sign(head - tail)
-			visited.add(tuple(tail))
+	for move in moves:
+		for s in range(move[1]):
 
-	return head, tail, visited
+			if move[0] == 'U':
+				rope[0][1] += 1
+			elif move[0] == 'D':
+				rope[0][1] -= 1
+			elif move[0] == 'R':
+				rope[0][0] += 1
+			elif move[0] == 'L':
+				rope[0][0] -= 1
+
+			for ki in range(len(rope) - 1):
+				if abs(rope[ki][0] - rope[ki + 1][0]) > 1 or abs(rope[ki][1] - rope[ki + 1][1]) > 1:
+					rope[ki + 1] += np.sign(rope[ki] - rope[ki + 1])
+
+					if ki == len(rope) - 2:
+						visited.add(tuple(rope[ki + 1]))
+
+	return len(visited)
 
 def main():
 	f = open('input', 'r')
 	
 	l = f.readlines()
 	l = [[int(i) if i.isdigit() else i for i in x.strip().split()] for x in l]
-
-	head = np.array([0, 0])
-	tail = np.array([0, 0])
-	visited = set()
-	visited.add(tuple(tail))
-
-	for move in l:
-		head, tail, visited = move_rope(head, tail, move, visited)
-
-	print("Answer to Part One: " + str(len(visited)))
-	print("Answer to Part Two: " + str('N/A'))
+	
+	print("Answer to Part One: " + str(move_rope(l, 2)))
+	print("Answer to Part Two: " + str(move_rope(l, 10)))
 
 
 if __name__=="__main__":
